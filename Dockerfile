@@ -1,8 +1,23 @@
-FROM openjdk:8-jre-alpine
+# Use AdoptOpenJDK 8 as base image
+FROM adoptopenjdk:8-jdk-hotspot
 
-EXPOSE 8080
+# Set the working directory in the container
+WORKDIR /app
 
-COPY ./build/libs/my-app-1.0-SNAPSHOT.jar /usr/app/
-WORKDIR /usr/app
+# Copy Gradle Wrapper files
+COPY gradlew .
+COPY gradle ./gradle
 
-ENTRYPOINT ["java", "-jar", "my-app-1.0-SNAPSHOT.jar"]
+# Copy project files and directories
+COPY build.gradle .
+COPY settings.gradle .
+COPY src ./src
+
+# Grant execute permission for Gradle Wrapper
+RUN chmod +x gradlew
+
+# Build the application
+RUN ./gradlew build
+
+# Command to run the application
+CMD ["java", "-jar", "build/libs/your-application.jar"]
